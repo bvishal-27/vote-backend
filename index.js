@@ -9,7 +9,7 @@ const pollRoutes = require('./routes/pollRoutes');
 
 const app = express();
 
-// 2. Middleware - Production Stable CORS
+// 2. Middleware - THE FIX FOR 204/CORS ERRORS
 app.use(cors({
     origin: [
         'http://localhost:5173',
@@ -17,8 +17,13 @@ app.use(cors({
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true
+    credentials: true,
+    // This is the specific fix for the "204" preflight error
+    optionsSuccessStatus: 200 
 }));
+
+// Explicitly handle preflight for all routes
+app.options('*', cors());
 
 app.use(express.json());
 
@@ -33,15 +38,19 @@ mongoose.connect(MONGO_URI)
 app.use('/api/auth', authRoutes);
 app.use('/api/polls', pollRoutes);
 
-// Test Route to verify deployment
+// Health Check Route
 app.get('/test', (req, res) => {
-    res.status(200).json({ message: "Backend is working!", timestamp: new Date() });
+    res.status(200).json({ 
+        message: "Backend is working!", 
+        status: "Online",
+        time: new Date().toISOString()
+    });
 });
 
 // 5. Start Server 
+// Render provides the PORT dynamically, so we must use process.env.PORT
 const PORT = process.env.PORT || 5001;
 
-// Binding to '0.0.0.0' ensures Render can route traffic to your app
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Pulse Server synchronizing on port ${PORT}`);
+    console.log(`🚀 Pulse Server is live and listening on port ${PORT}`);
 });
