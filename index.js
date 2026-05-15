@@ -13,7 +13,10 @@ const app = express();
 app.use(cors({
     origin: [
         'http://localhost:5173',
-        'https://live-polls-three.vercel.app' // Only your local dev and actual live site
+        'https://live-polls-three.vercel.app',
+        'https://live-polls-three.vercel.app/'
+        
+        // Only your local dev and actual live site
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], 
     allowedHeaders: ['Content-Type', 'Authorization'],
